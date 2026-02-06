@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Αρχαιολογικός Θησαυρός - Κάστρο Καλλιθέας</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4ece1;
+            color: #3e2723;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 {
+            font-family: 'GFS Didot', serif;
+        }
+        .dig-site {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 3px;
+            max-width: 95vw;
+            margin: 0 auto;
+        }
+        @media (min-width: 640px) {
+            .dig-site {
+                grid-template-columns: repeat(8, 1fr);
+                gap: 4px;
+                max-width: 500px;
+            }
+        }
+        @media (min-width: 768px) and (orientation: landscape) {
+            .dig-site {
+                max-width: 600px;
+                gap: 5px;
+            }
+        }
+        .tile {
+            aspect-ratio: 1 / 1;
+            background-color: #8d6e63;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #6d4c41;
+        }
+        @media (max-width: 640px) {
+            .tile {
+                border-width: 1px;
+            }
+        }
+        .tile:hover {
+            background-color: #a1887f;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        .tile.dug {
+            background-color: #d7ccc8;
+            cursor: default;
+            border: 1px solid #bcaaa4;
+        }
+        .tile.has-item {
+            background-color: #efebe9;
+        }
+        .artifact-icon {
+            font-size: 1.5rem;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @media (min-width: 768px) {
+            .artifact-icon {
+                font-size: 2rem;
+            }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); rotate: -45deg; }
+            100% { transform: scale(1); rotate: 0; }
+        }
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            cursor: pointer;
+            padding: 20px;
+        }
+        .museum-panel {
+            max-height: 85vh;
+            overflow-y: auto;
+            width: 95vw;
+            max-width: 800px;
+        }
+        .image-container {
+            cursor: default;
+            width: 95vw;
+            max-width: 500px;
+            max-height: 85vh;
+        }
+        @media (orientation: landscape) and (max-height: 600px) {
+            .image-container {
+                max-height: 75vh;
+                max-width: 90vw;
+            }
+        }
+        .discovery-image {
+            max-width: 100%;
+            max-height: 50vh;
+            object-fit: contain;
+        }
+        @media (orientation: landscape) {
+            .discovery-image {
+                max-height: 60vh;
+            }
+        }
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .controls-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        @media (min-width: 768px) {
+            .stats-container {
+                justify-content: flex-start;
+            }
+        }
+        .header-title {
+            font-size: 2rem;
+            line-height: 2.5rem;
+        }
+        @media (min-width: 640px) {
+            .header-title {
+                font-size: 2.5rem;
+                line-height: 3rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .header-title {
+                font-size: 3rem;
+                line-height: 3.5rem;
+            }
+        }
+        .game-container {
+            min-height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        @media (orientation: landscape) {
+            .game-container {
+                min-height: auto;
+                padding-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 lg:p-8">
+
+    <div class="max-w-6xl mx-auto game-container">
+        <!-- Header -->
+        <header class="text-center mb-4 md:mb-6 lg:mb-8">
+            <h1 class="header-title font-bold mb-2 text-amber-900">Αρχαιολογικός Θησαυρός</h1>
+            <p class="text-base md:text-lg italic text-amber-800 mb-1">Ανακάλυψε τα μυστικά του παρελθόντος κάτω από το χώμα.</p>
+            <p class="text-sm md:text-base font-bold text-green-700">🏺 Ευρήματα από το Κάστρο Καλλιθέας</p>
+        </header>
+
+        <!-- Stats & Controls -->
+        <div class="flex flex-col bg-white p-4 rounded-xl shadow-md border-b-4 border-amber-700 mb-4 md:mb-6">
+            <div class="controls-container">
+                <div class="stats-container">
+                    <div class="text-center">
+                        <span class="block text-xs uppercase font-bold text-gray-500">Ενέργεια</span>
+                        <span id="energy-display" class="text-2xl md:text-3xl font-bold text-orange-600">20</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="block text-xs uppercase font-bold text-gray-500">Ευρήματα</span>
+                        <span id="finds-display" class="text-2xl md:text-3xl font-bold text-blue-700">0</span>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2 justify-center mt-4 md:mt-0">
+                    <button onclick="toggleMuseum()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold transition shadow">🏛️ Μουσείο</button>
+                    <button onclick="resetGame()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold transition">🔄 Νέα Ανασκαφή</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dig Site Container -->
+        <div class="flex-grow bg-amber-100 p-3 md:p-4 rounded-2xl shadow-inner border-2 border-amber-200 mb-4">
+            <div id="grid" class="dig-site">
+                <!-- Tiles generated by JS -->
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-auto text-center text-amber-900 bg-white/50 p-3 md:p-4 rounded-lg">
+            <p class="text-sm md:text-base">💡 Κάνε κλικ στα τετράγωνα για να σκάψεις. Κάθε σκάψιμο καταναλώνει 1 μονάδα ενέργειας. Βρες όλα τα αντικείμενα πριν εξαντληθεί η ενέργειά σου!</p>
+            <p class="text-sm md:text-base font-bold text-green-700 mt-1">✨ Βρήκες εύρημα; +3 ενέργεια!</p>
+            <p class="text-xs md:text-sm text-amber-700 mt-1">📸 Κλικ σε εύρημα: Βλέπεις την πραγματική φωτογραφία!</p>
+        </div>
+    </div>
+
+    <!-- Discovery Popup with Real Image -->
+    <div id="discovery-overlay" class="overlay" onclick="closeDiscovery(event)">
+        <div class="image-container bg-white p-4 md:p-6 rounded-2xl shadow-2xl border-t-8 border-amber-500" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2 text-amber-900">Νέο Εύρημα!</h2>
+                <h3 id="discovery-name" class="text-lg md:text-xl text-amber-700 mb-3 md:mb-4 font-bold"></h3>
+                <div class="mb-3 md:mb-4">
+                    <img id="discovery-image" class="discovery-image mx-auto rounded-lg border-4 border-amber-200" src="" alt="Φωτογραφία Ευρήματος" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/EDE7DC/6D4C41?text=Φορτώνει...';">
+                </div>
+                <p id="discovery-desc" class="text-gray-600 mb-4 md:mb-6 italic text-sm md:text-base"></p>
+                <p class="text-green-600 font-bold mb-3 md:mb-4 text-base md:text-lg">🎉 +3 Μονάδες Ενέργειας!</p>
+                <button onclick="closeDiscovery()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold text-lg transition">Κλείσιμο (ή κλικ έξω)</button>
+                <p class="text-xs text-gray-500 mt-2">Πατήστε έξω από το παράθυρο ή στο κουμπί για κλείσιμο</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Museum Modal -->
+    <div id="museum-overlay" class="overlay">
+        <div class="museum-panel bg-stone-50 p-4 md:p-6 lg:p-8 rounded-2xl shadow-2xl relative">
+            <button onclick="toggleMuseum()" class="absolute top-3 right-3 md:top-4 md:right-4 text-2xl md:text-3xl text-gray-700 hover:text-black">&times;</button>
+            <h2 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center border-b-2 border-stone-300 pb-2">Η Συλλογή του Μουσείου</h2>
+            <h3 class="text-base md:text-lg text-center text-amber-800 mb-3 md:mb-4">🏰 Ευρήματα από το Κάστρο Καλλιθέας</h3>
+            <div id="museum-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                <!-- Museum items generated by JS -->
+            </div>
+            <div id="empty-museum-msg" class="text-center py-8 md:py-10 text-gray-400 italic">
+                Το μουσείο είναι ακόμα άδειο. Ξεκίνα την ανασκαφή!
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameover-overlay" class="overlay">
+        <div class="image-container bg-white p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm md:max-w-md">
+            <div class="text-center">
+                <div class="text-5xl md:text-6xl mb-4">⌛</div>
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">Τέλος Ενέργειας!</h2>
+                <p class="text-gray-600 mb-4 md:mb-6">Η ομάδα ανασκαφής κουράστηκε. Επέστρεψε στην κατασκήνωση για ξεκούραση.</p>
+                <button onclick="resetGame()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-amber-700 transition">Νέα Προσπάθεια</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Νέα Βάση Δεδομένων Ευρημάτων από το Κάστρο Καλλιθέας με Real Images
+        const artifacts = [
+            { id: 1, name: "Ειδώλιο Αφροδίτης", icon: "👑", desc: "Μαρμάρινο είδωλο της θεάς Αφροδίτης, σύμβολο ομορφιάς και αγάπης.", rarity: "legendary", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%91%CF%86%CF%81%CE%BF%CE%B4%CE%AF%CF%84%CE%B7.jpg" },
+            { id: 2, name: "Κάνθαρος", icon: "🍷", desc: "Ποτήρι για το κρασί με δύο λαβές, συχνά χρησιμοποιούνταν σε συμπόσια.", rarity: "rare", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%9A%CE%B1%CE%BD%CE%B8%CE%B1%CF%81%CE%BF%CF%82.jpg" },
+            { id: 3, name: "Λύχνος", icon: "🔥", desc: "Πήλινος ή μεταλλικός λύχνος που λειτουργούσε με λάδι, για φωτισμό.", rarity: "common", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%9B%CF%8D%CF%87%CE%BD%CE%BF%CF%82.jpg" },
+            { id: 4, name: "Μυροδοχείο", icon: "🫙", desc: "Μικρό αγγείο για την αποθήκευση αρωμάτων και πολυτελών ελαίων.", rarity: "rare", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%9C%CF%85%CF%81%CE%BF%CE%B4%CE%BF%CF%87%CE%B5%CE%AF%CE%BF.jpg" },
+            { id: 5, name: "Οινοχόος", icon: "🪣", desc: "Κεράμι για τη μεταφορά και σερβίρισμα του κρασιού.", rarity: "common", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%9F%CE%B9%CE%BD%CE%BF%CF%87%CF%8C%CE%BF%CF%82.jpg" },
+            { id: 6, name: "Πινάκιο", icon: "🎨", desc: "Πινακίδα από πηλό ή ξύλο που χρησίμευε για γράψιμο ή ζωγραφική.", rarity: "rare", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%A0%CE%B9%CE%BD%CE%AC%CE%BA%CE%B9%CE%BF.jpg" },
+            { id: 7, name: "Ρωμαϊκό Νόμισμα", icon: "🪙", desc: "Χάλκινο νόμισμα της Ρωμαϊκής περιόδου, με χαραγμένο πρόσωπο αυτοκράτορα.", rarity: "common", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%A1%CF%89%CE%BC%CE%B1%CE%B9%CE%BA%CF%8C%20%CE%9D%CF%8C%CE%BC%CE%B9%CF%83%CE%BC%CE%B1.jpg" },
+            { id: 8, name: "Σκύφος με τον μύθο του Αυτόλυκου", icon: "🏺", desc: "Κύπελλο που απεικονίζει τον μύθο του Αυτόλυκου, γνωστό από την Οδύσσεια.", rarity: "legendary", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%A3%CE%BA%CF%8D%CE%B8%CE%BF%CF%82%20%CE%91%CF%85%CF%84%CF%8C%CE%BB%CF%85%CE%BA%CE%BF%CF%82.jpg" },
+            { id: 9, name: "Φάρσαλος Νόμισμα", icon: "⚜️", desc: "Ασημένιο νόμισμα από την πόλη Φάρσαλο, με χαρακτηριστικά τοπικά σύμβολα.", rarity: "rare", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%A6%CE%B1%CF%81%CF%83%CE%B1%CE%BB%CE%BF%CF%82%20%CE%9D%CE%BF%CE%BC%CE%B9%CF%83%CE%BC%CE%B1.jpg" },
+            { id: 10, name: "Χύτρα", icon: "🍯", desc: "Μεγάλο πήλινο σκεύος για μαγείρεμα ή αποθήκευση τροφίμων.", rarity: "common", imageUrl: "https://raw.githubusercontent.com/conchr/GameLab/main/%CE%A7%CF%8D%CF%84%CF%81%CE%B1.jpg" }
+        ];
+
+        // Game State
+        let energy = 20;
+        let finds = 0;
+        let gridSize = 64; // 8x8 default
+        let gridData = [];
+        let collectedArtifacts = [];
+
+        // UI Elements
+        const gridElement = document.getElementById('grid');
+        const energyDisplay = document.getElementById('energy-display');
+        const findsDisplay = document.getElementById('finds-display');
+        const discoveryOverlay = document.getElementById('discovery-overlay');
+        const museumOverlay = document.getElementById('museum-overlay');
+        const museumList = document.getElementById('museum-list');
+        const gameOverOverlay = document.getElementById('gameover-overlay');
+
+        // Responsive grid setup
+        function getGridConfig() {
+            const width = window.innerWidth;
+            const isPortrait = window.innerHeight > window.innerWidth;
+            
+            if (width < 640 || (isPortrait && width < 768)) {
+                return { columns: 6, size: 36 }; // 6x6 grid for mobile portrait
+            }
+            return { columns: 8, size: 64 }; // 8x8 for larger screens
+        }
+
+        // Initialize Game
+        function initGrid() {
+            gridElement.innerHTML = '';
+            const config = getGridConfig();
+            gridSize = config.size;
+            
+            gridData = Array(gridSize).fill(null);
+            
+            // Randomly place 10 artifacts
+            let placed = 0;
+            while (placed < 10) {
+                let randomIndex = Math.floor(Math.random() * gridSize);
+                if (gridData[randomIndex] === null) {
+                    const randomArtifact = artifacts[Math.floor(Math.random() * artifacts.length)];
+                    gridData[randomIndex] = { ...randomArtifact };
+                    placed++;
+                }
+            }
+
+            // Update grid CSS
+            gridElement.style.gridTemplateColumns = `repeat(${config.columns}, 1fr)`;
+            
+            for (let i = 0; i < gridSize; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.dataset.index = i;
+                tile.addEventListener('click', () => dig(i, tile));
+                gridElement.appendChild(tile);
+            }
+        }
+
+        // Dig Function
+        function dig(index, element) {
+            if (element.classList.contains('dug') || energy <= 0) return;
+
+            // Reduce Energy
+            energy--;
+            
+            element.classList.add('dug');
+            
+            const item = gridData[index];
+            if (item) {
+                // Increase energy by 3 when finding an artifact
+                energy += 3;
+                element.classList.add('has-item');
+                element.innerHTML = `<span class="artifact-icon">${item.icon}</span>`;
+                showDiscovery(item);
+                collectItem(item);
+            } else {
+                // Visual feedback for empty hole
+                element.innerHTML = `<div class="w-2 h-2 bg-stone-500 rounded-full opacity-30"></div>`;
+            }
+
+            updateStats();
+
+            // Check Game Over
+            if (energy <= 0) {
+                setTimeout(() => {
+                    gameOverOverlay.style.display = 'flex';
+                }, 1000);
+            }
+        }
+
+        function collectItem(item) {
+            finds++;
+            updateStats();
+            // Store unique items in museum
+            if (!collectedArtifacts.find(a => a.id === item.id)) {
+                collectedArtifacts.push(item);
+                updateMuseumUI();
+            }
+        }
+
+        function updateStats() {
+            energyDisplay.innerText = energy;
+            findsDisplay.innerText = finds;
+            
+            if (energy <= 5) {
+                energyDisplay.classList.add('text-red-600');
+            } else {
+                energyDisplay.classList.remove('text-red-600');
+            }
+        }
+
+        // Show Discovery with Real Image
+        function showDiscovery(item) {
+            document.getElementById('discovery-name').innerText = item.name;
+            document.getElementById('discovery-desc').innerText = item.desc;
+            
+            const discoveryImage = document.getElementById('discovery-image');
+            discoveryImage.src = item.imageUrl;
+            discoveryImage.alt = `Φωτογραφία: ${item.name}`;
+            
+            discoveryOverlay.style.display = 'flex';
+        }
+
+        // Close Discovery when clicking outside the image container
+        function closeDiscovery(event) {
+            // If event is provided, only close if click was directly on the overlay (black background)
+            if (event && event.target !== discoveryOverlay) return;
+            discoveryOverlay.style.display = 'none';
+        }
+
+        function toggleMuseum() {
+            const isVisible = museumOverlay.style.display === 'flex';
+            museumOverlay.style.display = isVisible ? 'none' : 'flex';
+        }
+
+        function updateMuseumUI() {
+            const emptyMsg = document.getElementById('empty-museum-msg');
+            if (collectedArtifacts.length > 0) {
+                emptyMsg.style.display = 'none';
+                museumList.innerHTML = collectedArtifacts.map(item => `
+                    <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-stone-200 flex flex-col items-center text-center">
+                        <div class="text-3xl md:text-4xl mb-2">${item.icon}</div>
+                        <div class="w-full">
+                            <h4 class="font-bold text-amber-800 text-sm md:text-base">${item.name}</h4>
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.desc}</p>
+                            <p class="text-xs mt-1 font-semibold ${item.rarity === 'legendary' ? 'text-purple-600' : item.rarity === 'rare' ? 'text-blue-600' : 'text-gray-600'}">${item.rarity === 'legendary' ? 'Θρυλικό' : item.rarity === 'rare' ? 'Σπάνιο' : 'Κοινό'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                emptyMsg.style.display = 'block';
+                museumList.innerHTML = '';
+            }
+        }
+
+        function resetGame() {
+            energy = 20;
+            finds = 0;
+            updateStats();
+            initGrid();
+            discoveryOverlay.style.display = 'none';
+            museumOverlay.style.display = 'none';
+            gameOverOverlay.style.display = 'none';
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            initGrid();
+        });
+
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(initGrid, 100);
+        });
+
+        // Start the game
+        window.onload = initGrid;
+    </script>
+</body>
+</html>
