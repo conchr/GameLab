@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>Αρχαιολογικός Θησαυρός - Κάστρο Καλλιθέας</title>
+    <title>Ευρήματα από το Κάστρο Καλλιθέας</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -170,6 +170,13 @@
                 padding-bottom: 1rem;
             }
         }
+        .attempts-counter {
+            transition: all 0.3s ease;
+        }
+        .attempts-high {
+            color: #dc2626;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="p-3 md:p-6 lg:p-8">
@@ -177,9 +184,7 @@
     <div class="max-w-6xl mx-auto game-container">
         <!-- Header -->
         <header class="text-center mb-4 md:mb-6 lg:mb-8">
-            <h1 class="header-title font-bold mb-2 text-amber-900">Αρχαιολογικός Θησαυρός</h1>
-            <p class="text-base md:text-lg italic text-amber-800 mb-1">Ανακάλυψε τα μυστικά του παρελθόντος κάτω από το χώμα.</p>
-            <p class="text-sm md:text-base font-bold text-green-700">🏺 Ευρήματα από το Κάστρο Καλλιθέας</p>
+            <h1 class="header-title font-bold text-amber-900">Ευρήματα από το Κάστρο Καλλιθέας</h1>
         </header>
 
         <!-- Stats & Controls -->
@@ -187,17 +192,17 @@
             <div class="controls-container">
                 <div class="stats-container">
                     <div class="text-center">
-                        <span class="block text-xs uppercase font-bold text-gray-500">Ενέργεια</span>
-                        <span id="energy-display" class="text-2xl md:text-3xl font-bold text-orange-600">20</span>
+                        <span class="block text-xs uppercase font-bold text-gray-500">Προσπάθειες</span>
+                        <span id="attempts-display" class="text-2xl md:text-3xl font-bold text-blue-600 attempts-counter">0</span>
                     </div>
                     <div class="text-center">
                         <span class="block text-xs uppercase font-bold text-gray-500">Ευρήματα</span>
-                        <span id="finds-display" class="text-2xl md:text-3xl font-bold text-blue-700">0</span>
+                        <span id="finds-display" class="text-2xl md:text-3xl font-bold text-green-700">0/10</span>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2 justify-center mt-4 md:mt-0">
                     <button onclick="toggleMuseum()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold transition shadow">🏛️ Μουσείο</button>
-                    <button onclick="resetGame()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold transition">🔄 Νέα Ανασκαφή</button>
+                    <button onclick="resetGame()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold transition">🔄 Νέο Παιχνίδι</button>
                 </div>
             </div>
         </div>
@@ -209,12 +214,7 @@
             </div>
         </div>
 
-        <!-- Instructions -->
-        <div class="mt-auto text-center text-amber-900 bg-white/50 p-3 md:p-4 rounded-lg">
-            <p class="text-sm md:text-base">💡 Κάνε κλικ στα τετράγωνα για να σκάψεις. Κάθε σκάψιμο καταναλώνει 1 μονάδα ενέργειας. Βρες όλα τα αντικείμενα πριν εξαντληθεί η ενέργειά σου!</p>
-            <p class="text-sm md:text-base font-bold text-green-700 mt-1">✨ Βρήκες εύρημα; +3 ενέργεια!</p>
-            <p class="text-xs md:text-sm text-amber-700 mt-1">📸 Κλικ σε εύρημα: Βλέπεις την πραγματική φωτογραφία!</p>
-        </div>
+        <!-- No Instructions Section -->
     </div>
 
     <!-- Discovery Popup with Real Image -->
@@ -227,8 +227,9 @@
                     <img id="discovery-image" class="discovery-image mx-auto rounded-lg border-4 border-amber-200" src="" alt="Φωτογραφία Ευρήματος" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/EDE7DC/6D4C41?text=Φορτώνει...';">
                 </div>
                 <p id="discovery-desc" class="text-gray-600 mb-4 md:mb-6 italic text-sm md:text-base"></p>
-                <p class="text-green-600 font-bold mb-3 md:mb-4 text-base md:text-lg">🎉 +3 Μονάδες Ενέργειας!</p>
-                <button onclick="closeDiscovery()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold text-lg transition">Κλείσιμο (ή κλικ έξω)</button>
+                <p class="text-green-600 font-bold mb-3 md:mb-4 text-base md:text-lg">✅ Βρήκατε εύρημα με <span id="discovery-attempts">0</span> προσπάθειες!</p>
+                <p class="text-blue-600 font-bold mb-3 md:mb-4 text-base">🎯 Προσπάθειες μηδενίστηκαν για το επόμενο εύρημα</p>
+                <button onclick="closeDiscovery()" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-bold text-lg transition">Συνέχεια</button>
                 <p class="text-xs text-gray-500 mt-2">Πατήστε έξω από το παράθυρο ή στο κουμπί για κλείσιμο</p>
             </div>
         </div>
@@ -249,14 +250,15 @@
         </div>
     </div>
 
-    <!-- Game Over Modal -->
-    <div id="gameover-overlay" class="overlay">
+    <!-- Game Completed Modal -->
+    <div id="gamecompleted-overlay" class="overlay">
         <div class="image-container bg-white p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm md:max-w-md">
             <div class="text-center">
-                <div class="text-5xl md:text-6xl mb-4">⌛</div>
-                <h2 class="text-2xl md:text-3xl font-bold mb-2">Τέλος Ενέργειας!</h2>
-                <p class="text-gray-600 mb-4 md:mb-6">Η ομάδα ανασκαφής κουράστηκε. Επέστρεψε στην κατασκήνωση για ξεκούραση.</p>
-                <button onclick="resetGame()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-amber-700 transition">Νέα Προσπάθεια</button>
+                <div class="text-5xl md:text-6xl mb-4">🏆</div>
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">Συγχαρητήρια!</h2>
+                <p class="text-gray-600 mb-4 md:mb-6">Βρήκατε και τα 10 ευρήματα από το Κάστρο Καλλιθέας!</p>
+                <p id="total-attempts" class="text-blue-600 font-bold mb-4 md:mb-6 text-xl"></p>
+                <button onclick="resetGame()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-amber-700 transition">Νέο Παιχνίδι</button>
             </div>
         </div>
     </div>
@@ -277,7 +279,8 @@
         ];
 
         // Game State
-        let energy = 20;
+        let attempts = 0;
+        let totalAttempts = 0;
         let finds = 0;
         let gridSize = 64; // 8x8 default
         let gridData = [];
@@ -285,12 +288,12 @@
 
         // UI Elements
         const gridElement = document.getElementById('grid');
-        const energyDisplay = document.getElementById('energy-display');
+        const attemptsDisplay = document.getElementById('attempts-display');
         const findsDisplay = document.getElementById('finds-display');
         const discoveryOverlay = document.getElementById('discovery-overlay');
         const museumOverlay = document.getElementById('museum-overlay');
         const museumList = document.getElementById('museum-list');
-        const gameOverOverlay = document.getElementById('gameover-overlay');
+        const gameCompletedOverlay = document.getElementById('gamecompleted-overlay');
 
         // Responsive grid setup
         function getGridConfig() {
@@ -311,14 +314,17 @@
             
             gridData = Array(gridSize).fill(null);
             
-            // Randomly place 10 artifacts
-            let placed = 0;
-            while (placed < 10) {
+            // Place all 10 unique artifacts in random positions
+            // First, shuffle the artifacts array to randomize order
+            const shuffledArtifacts = [...artifacts].sort(() => Math.random() - 0.5);
+            
+            // Then place each artifact in a random empty tile
+            let artifactIndex = 0;
+            while (artifactIndex < 10) {
                 let randomIndex = Math.floor(Math.random() * gridSize);
                 if (gridData[randomIndex] === null) {
-                    const randomArtifact = artifacts[Math.floor(Math.random() * artifacts.length)];
-                    gridData[randomIndex] = { ...randomArtifact };
-                    placed++;
+                    gridData[randomIndex] = { ...shuffledArtifacts[artifactIndex] };
+                    artifactIndex++;
                 }
             }
 
@@ -336,39 +342,44 @@
 
         // Dig Function
         function dig(index, element) {
-            if (element.classList.contains('dug') || energy <= 0) return;
+            if (element.classList.contains('dug')) return;
 
-            // Reduce Energy
-            energy--;
-            
             element.classList.add('dug');
             
             const item = gridData[index];
             if (item) {
-                // Increase energy by 3 when finding an artifact
-                energy += 3;
+                // Βρήκαμε εύρημα!
                 element.classList.add('has-item');
                 element.innerHTML = `<span class="artifact-icon">${item.icon}</span>`;
+                
+                // Εμφάνιση pop-up με τις προσπάθειες που χρειάστηκαν
+                document.getElementById('discovery-attempts').innerText = attempts;
                 showDiscovery(item);
+                
+                // Μηδενίζουμε τις προσπάθειες για το επόμενο εύρημα
+                attempts = 0;
+                
+                // Αυξάνουμε τα συνολικά ευρήματα
+                finds++;
                 collectItem(item);
+                
+                // Ελέγχουμε αν βρήκαμε όλα τα ευρήματα
+                if (finds === 10) {
+                    setTimeout(() => {
+                        showGameCompleted();
+                    }, 1500);
+                }
             } else {
-                // Visual feedback for empty hole
+                // Κενό τετράγωνο - αυξάνουμε τις προσπάθειες
+                attempts++;
+                totalAttempts++;
                 element.innerHTML = `<div class="w-2 h-2 bg-stone-500 rounded-full opacity-30"></div>`;
             }
 
             updateStats();
-
-            // Check Game Over
-            if (energy <= 0) {
-                setTimeout(() => {
-                    gameOverOverlay.style.display = 'flex';
-                }, 1000);
-            }
         }
 
         function collectItem(item) {
-            finds++;
-            updateStats();
             // Store unique items in museum
             if (!collectedArtifacts.find(a => a.id === item.id)) {
                 collectedArtifacts.push(item);
@@ -377,13 +388,14 @@
         }
 
         function updateStats() {
-            energyDisplay.innerText = energy;
-            findsDisplay.innerText = finds;
+            attemptsDisplay.innerText = attempts;
+            findsDisplay.innerText = `${finds}/10`;
             
-            if (energy <= 5) {
-                energyDisplay.classList.add('text-red-600');
+            // Αλλαγή χρώματος αν οι προσπάθειες είναι πολλές
+            if (attempts >= 10) {
+                attemptsDisplay.classList.add('attempts-high');
             } else {
-                energyDisplay.classList.remove('text-red-600');
+                attemptsDisplay.classList.remove('attempts-high');
             }
         }
 
@@ -397,6 +409,12 @@
             discoveryImage.alt = `Φωτογραφία: ${item.name}`;
             
             discoveryOverlay.style.display = 'flex';
+        }
+
+        // Show Game Completed
+        function showGameCompleted() {
+            document.getElementById('total-attempts').innerText = `Συνολικές προσπάθειες: ${totalAttempts}`;
+            gameCompletedOverlay.style.display = 'flex';
         }
 
         // Close Discovery when clicking outside the image container
@@ -432,13 +450,15 @@
         }
 
         function resetGame() {
-            energy = 20;
+            attempts = 0;
+            totalAttempts = 0;
             finds = 0;
+            collectedArtifacts = [];
             updateStats();
             initGrid();
             discoveryOverlay.style.display = 'none';
             museumOverlay.style.display = 'none';
-            gameOverOverlay.style.display = 'none';
+            gameCompletedOverlay.style.display = 'none';
         }
 
         // Handle window resize
